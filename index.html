@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f5f1">
+<title>Maschenrechner | Frau Riedel strickt</title>
+<style>
+:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#202b32;background:#f6f5f1}*{box-sizing:border-box}body{margin:0;padding:30px 16px}main{max-width:680px;margin:auto}.language{display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px}.language button{background:white;border:1px solid #abb8bd;border-radius:7px;padding:7px 12px;cursor:pointer;font-weight:650}.language button[aria-pressed="true"]{background:#16495d;color:white;border-color:#16495d}header{text-align:center;margin:22px 0 30px}.eyebrow{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:#667a82}h1{font-size:clamp(2rem,6vw,3rem);margin:8px 0}p{line-height:1.55;color:#53626a}.card{background:#fff;border:1px solid #e2e6e6;border-radius:18px;padding:clamp(20px,5vw,34px);box-shadow:0 8px 28px #26363d0a}.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:25px 0}label{display:block;font-size:.92rem;font-weight:650;margin-bottom:9px}input{width:100%;padding:13px 14px;border:1px solid #abb8bd;border-radius:9px;font-size:1.1rem}input:focus{outline:2px solid #396b83;outline-offset:2px}.hint{font-size:.85rem;color:#65747b;margin-top:8px}.result{border-top:1px solid #e4e9e9;margin-top:22px;padding-top:22px}h2{font-size:1.3rem}.numbers{display:flex;gap:12px;flex-wrap:wrap}.stat{flex:1;min-width:120px;background:#eff4f5;padding:14px;border-radius:10px}.stat strong{display:block;font-size:1.7rem}.stat span{font-size:.82rem;color:#53626a}.sequence{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}.step{display:inline-flex;align-items:center;justify-content:center;width:28px;height:30px;border-radius:5px;font-weight:700;font-size:.9rem}.pick{background:#cbe2e8;color:#16495d}.skip{background:#f1eee8;color:#746b5d}.legend{font-size:.82rem;color:#53626a}.instructions{background:#f6f8f8;padding:14px 18px;border-radius:10px;line-height:1.65}.error{color:#a62e37;font-weight:600}.foot{text-align:center;font-size:.82rem;margin:25px 0;color:#66747b}@media(max-width:440px){.fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<nav class="language" aria-label="Language / Sprache"><button type="button" id="de" aria-pressed="false">DE</button><button type="button" id="en" aria-pressed="false">EN</button></nav>
+<header><div class="eyebrow">Frau Riedel strickt</div><h1 data-i18n="title">Maschenrechner</h1><p data-i18n="intro">Berechne, wie du die aufzunehmenden Maschen gleichmäßig entlang einer Seitenkante verteilst.</p></header>
+<section class="card"><div class="fields"><div><label for="rows" data-i18n="rows">Gestrickte Reihen</label><input id="rows" type="number" min="0" step="1" value="58" inputmode="numeric"></div><div><label for="stitches" data-i18n="stitches">Aufzunehmende Maschen</label><input id="stitches" type="number" min="1" step="1" value="36" inputmode="numeric"><div class="hint" data-i18n="stitchHint">Wert G aus deiner Anleitung</div></div></div><div id="output" aria-live="polite"></div></section>
+<div class="foot" data-i18n="footer">© Frau Riedel strickt · Maschenaufnahme an der Kante</div></main>
+<script>
+const translations={
+ de:{title:'Maschenrechner',intro:'Berechne, wie du die aufzunehmenden Maschen gleichmäßig entlang einer Seitenkante verteilst.',rows:'Gestrickte Reihen',stitches:'Aufzunehmende Maschen',stitchHint:'Wert G aus deiner Anleitung',footer:'© Frau Riedel strickt · Maschenaufnahme an der Kante',error:'Bitte gültige ganze Zahlen eingeben. Die Maschenzahl darf die Reihenanzahl einschließlich der 2 zusätzlichen Reihen nicht überschreiten (maximal 10.000 Reihen).',result:'Dein Ergebnis',rowWord:'Reihen',knitted:'gestrickte Reihen',extra:'zusätzliche Reihen (aus dem Abschnitt „Verkürzte Reihen“)',pick:'Maschen aufnehmen',skip:'Reihen überspringen',sequence:'Genaue Aufnahmefolge',explain:'Arbeite die Reihen von Anfang bis Ende in der angezeigten Reihenfolge ab. Pro markierter Reihe wird eine Masche aufgenommen.',row:'Reihe',rowsPlural:'Reihen',pickOne:'Masche aufnehmen',skipOne:'überspringen',legend:'● = 1 Masche aufnehmen &nbsp; · &nbsp; – = Reihe überspringen',exact:'Die Verteilung ist rechnerisch exakt: Es werden insgesamt {picks} Maschen über {total} Reihen aufgenommen. Beginne an der Seite, von der aus du die Reihen zählst.',aria:'{picks} Aufnahmen gleichmäßig auf {total} Reihen verteilt'},
+ en:{title:'Stitch Pick-Up Calculator',intro:'Calculate how to distribute picked-up stitches evenly along a side edge.',rows:'Rows knitted',stitches:'Stitches to pick up',stitchHint:'Value G from your pattern',footer:'© Frau Riedel strickt · Picking up stitches along an edge',error:'Please enter valid whole numbers. The number of stitches cannot exceed the number of rows including the 2 additional rows (maximum 10,000 rows).',result:'Your result',rowWord:'rows',knitted:'rows knitted',extra:'additional rows (from the “Short Rows” section)',pick:'Stitches to pick up',skip:'Rows to skip',sequence:'Exact pick-up sequence',explain:'Follow the rows from beginning to end in the order shown. Pick up one stitch in each marked row.',row:'row',rowsPlural:'rows',pickOne:'pick up a stitch',skipOne:'skip',legend:'● = pick up 1 stitch &nbsp; · &nbsp; – = skip row',exact:'This distribution is mathematically exact: {picks} stitches are picked up over {total} rows. Start at the edge from which you count the rows.',aria:'{picks} stitches distributed evenly across {total} rows'}
+};
+const params=new URLSearchParams(location.search);
+const requested=params.get('lang');
+let lang=(requested==='de'||requested==='en')?requested:(navigator.language.toLowerCase().startsWith('de')?'de':'en');
+const rowsInput=document.getElementById('rows'),stitchesInput=document.getElementById('stitches'),output=document.getElementById('output');
+function setLanguage(next){lang=next;document.documentElement.lang=lang;document.title=translations[lang].title+' | Frau Riedel strickt';document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=translations[lang][el.dataset.i18n]);for(const code of ['de','en'])document.getElementById(code).setAttribute('aria-pressed',String(code===lang));const url=new URL(location.href);url.searchParams.set('lang',lang);history.replaceState(null,'',url);render();}
+function render(){
+ const t=translations[lang],rowText=rowsInput.value.trim(),stitchText=stitchesInput.value.trim();
+ const rows=Number(rowText),stitches=Number(stitchText),total=rows+2;
+ if(!rowText||!stitchText||!Number.isSafeInteger(rows)||!Number.isSafeInteger(stitches)||rows<0||stitches<1||stitches>total||total>10000){output.innerHTML=`<p class="error">${t.error}</p>`;return;}
+ const steps=Array.from({length:total},(_,i)=>Math.floor((i+1)*stitches/total+0.5)>Math.floor(i*stitches/total+0.5));
+ const picks=steps.filter(Boolean).length,skipped=total-picks;
+ const runs=[];for(const val of steps){const last=runs[runs.length-1];if(last&&last.pick===val)last.count++;else runs.push({pick:val,count:1});}
+ const fullText=runs.map(x=>lang==='de'?`${x.count} ${x.count===1?'Reihe':'Reihen'} ${x.pick?t.pickOne:t.skipOne}`:`${x.pick?'Pick up stitches in':'Skip'} ${x.count} ${x.count===1?'row':'rows'}`).join(' · ');
+ const cells=steps.map((pick,i)=>`<span class="step ${pick?'pick':'skip'}" title="${t.row} ${i+1}: ${pick?t.pickOne:t.skipOne}" aria-label="${t.row} ${i+1}: ${pick?t.pickOne:t.skipOne}">${pick?'●':'–'}</span>`).join('');
+ const exact=t.exact.replace('{picks}',picks).replace('{total}',total),aria=t.aria.replace('{picks}',picks).replace('{total}',total);
+ output.innerHTML=`<div class="result"><h2>${t.result}</h2><p>${rows} ${t.knitted} + 2 ${t.extra} = <strong>${total} ${t.rowWord}</strong>.</p><div class="numbers"><div class="stat"><strong>${picks}</strong><span>${t.pick}</span></div><div class="stat"><strong>${skipped}</strong><span>${t.skip}</span></div></div><h2>${t.sequence}</h2><p>${t.explain}</p><div class="instructions">${fullText}</div><div class="sequence" role="img" aria-label="${aria}">${cells}</div><p class="legend">${t.legend}</p><p class="hint">${exact}</p></div>`;
+}
+for(const code of ['de','en'])document.getElementById(code).addEventListener('click',()=>setLanguage(code));
+rowsInput.addEventListener('input',render);stitchesInput.addEventListener('input',render);
+setLanguage(lang);
+</script></body></html>
