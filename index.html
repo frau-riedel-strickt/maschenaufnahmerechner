@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f5f1">
+<title>Maschenrechner | Frau Riedel strickt</title>
+<style>
+:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#202b32;background:#f6f5f1}*{box-sizing:border-box}body{margin:0;padding:30px 16px}main{max-width:680px;margin:auto}header{text-align:center;margin:22px 0 30px}.eyebrow{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:#667a82}h1{font-size:clamp(2rem,6vw,3rem);margin:8px 0}p{line-height:1.55;color:#53626a}.card{background:#fff;border:1px solid #e2e6e6;border-radius:18px;padding:clamp(20px,5vw,34px);box-shadow:0 8px 28px #26363d0a}.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:25px 0}label{display:block;font-size:.92rem;font-weight:650;margin-bottom:9px}input{width:100%;padding:13px 14px;border:1px solid #abb8bd;border-radius:9px;font-size:1.1rem}input:focus{outline:2px solid #396b83;outline-offset:2px}.hint{font-size:.85rem;color:#65747b;margin-top:8px}.result{border-top:1px solid #e4e9e9;margin-top:22px;padding-top:22px}h2{font-size:1.3rem}.numbers{display:flex;gap:12px;flex-wrap:wrap}.stat{flex:1;min-width:120px;background:#eff4f5;padding:14px;border-radius:10px}.stat strong{display:block;font-size:1.7rem}.stat span{font-size:.82rem;color:#53626a}.sequence{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}.step{display:inline-flex;align-items:center;justify-content:center;width:28px;height:30px;border-radius:5px;font-weight:700;font-size:.9rem}.pick{background:#cbe2e8;color:#16495d}.skip{background:#f1eee8;color:#746b5d}.legend{font-size:.82rem;color:#53626a}.instructions{background:#f6f8f8;padding:14px 18px;border-radius:10px;line-height:1.65}.error{color:#a62e37;font-weight:600}.foot{text-align:center;font-size:.82rem;margin:25px 0;color:#66747b}@media(max-width:440px){.fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<header><div class="eyebrow">Frau Riedel strickt</div><h1>Maschenrechner</h1><p>Berechne, wie du die aufzunehmenden Maschen gleichmäßig entlang einer Seitenkante verteilst.</p></header>
+<section class="card">
+<div class="fields"><div><label for="rows">Gestrickte Reihen</label><input id="rows" type="number" min="0" step="1" value="58" inputmode="numeric"><div class="hint">Ohne die 2 zusätzlichen Reihen</div></div><div><label for="stitches">Aufzunehmende Maschen</label><input id="stitches" type="number" min="1" step="1" value="36" inputmode="numeric"><div class="hint">Wert G aus deiner Anleitung</div></div></div>
+<div id="output" aria-live="polite"></div>
+</section><div class="foot">© Frau Riedel strickt · Maschenaufnahme an der Kante</div>
+</main>
+<script>
+const rowsInput=document.getElementById('rows'),stitchesInput=document.getElementById('stitches'),output=document.getElementById('output');
+function render(){
+ const rowText=rowsInput.value.trim(), stitchText=stitchesInput.value.trim();
+ const rows=Number(rowText), stitches=Number(stitchText), total=rows+2;
+ if(!rowText||!stitchText||!Number.isSafeInteger(rows)||!Number.isSafeInteger(stitches)||rows<0||stitches<1||stitches>total||total>10000){output.innerHTML='<p class="error">Bitte gültige ganze Zahlen eingeben. Die Maschenzahl darf die Reihenanzahl einschließlich der 2 zusätzlichen Reihen nicht überschreiten (maximal 10.000 Reihen).</p>';return;}
+ // Centered placement: one pick per allocated row; exactly 'stitches' picks over 'total' rows.
+ const steps=Array.from({length:total},(_,i)=>Math.floor((i+1)*stitches/total+0.5)>Math.floor(i*stitches/total+0.5));
+ const picks=steps.filter(Boolean).length;
+ const skipped=total-picks;
+ const runs=[];for(const val of steps){const last=runs[runs.length-1];if(last&&last.pick===val)last.count++;else runs.push({pick:val,count:1});}
+ const fullText=runs.map(x=>`${x.count} ${x.count===1?'Reihe':'Reihen'} ${x.pick?'Masche aufnehmen':'überspringen'}`).join(' · ');
+ const cells=steps.map((pick,i)=>`<span class="step ${pick?'pick':'skip'}" title="Reihe ${i+1}: ${pick?'Masche aufnehmen':'überspringen'}" aria-label="Reihe ${i+1}: ${pick?'aufnehmen':'überspringen'}">${pick?'●':'–'}</span>`).join('');
+ output.innerHTML=`<div class="result"><h2>Dein Ergebnis</h2><p>${rows} gestrickte Reihen + 2 zusätzliche Reihen = <strong>${total} Reihen</strong>.</p><div class="numbers"><div class="stat"><strong>${picks}</strong><span>Maschen aufnehmen</span></div><div class="stat"><strong>${skipped}</strong><span>Reihen überspringen</span></div></div><h2>Genaue Aufnahmefolge</h2><p>Arbeite die Reihen von Anfang bis Ende in der angezeigten Reihenfolge ab. Pro markierter Reihe wird eine Masche aufgenommen.</p><div class="instructions">${fullText}</div><div class="sequence" role="img" aria-label="${picks} Aufnahmen gleichmäßig auf ${total} Reihen verteilt">${cells}</div><p class="legend">● = 1 Masche aufnehmen &nbsp; · &nbsp; – = Reihe überspringen</p><p class="hint">Die Verteilung ist rechnerisch exakt: Es werden insgesamt ${picks} Maschen über ${total} Reihen aufgenommen. Beginne an der Seite, von der aus du die Reihen zählst.</p></div>`;
+}
+rowsInput.addEventListener('input',render);stitchesInput.addEventListener('input',render);render();
+</script></body></html>
